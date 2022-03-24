@@ -1,0 +1,19 @@
+.product-detail .left {
+  font-size: 20px;
+  margin-right: 15px;
+  font-weight: bold;
+}
+.product-detail .right {
+  position: relative;
+}
+.product-detail .product-img {
+  width: 150px;
+  height: 150px;
+  border: 1px solid gray;
+  margin-right: 10px;
+}
+.product-detail .ant-list-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+}
