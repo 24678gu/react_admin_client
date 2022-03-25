@@ -5,6 +5,7 @@ import { Menu } from 'antd';
 import * as Icon from '@ant-design/icons';
 import {Link,withRouter} from 'react-router-dom'
 import MenuList from '../../config/menuConfig'
+import memoryUtils from '../../utils/memoryUtils'
 
 const { SubMenu } = Menu;
 
@@ -16,12 +17,34 @@ class LeftNav extends Component {
     collapsed: false,
   };
 
-  //根据menu数组生成标签数组
+  hasAuth = item => {
+    const {isPublic} = item
+    let key = item.key
+    if(key==='/product'){
+      key='/products'
+    }else if(key==='/product/category'){
+      key='/category'
+    }else if(key==='/product/productManage'){
+      key='/product'
+    }
+    const menus = memoryUtils.user.role.menus
+    const username = memoryUtils.user.username
+    if(username==='admin' || isPublic || menus.indexOf(key)!==-1){
+      return true
+    }else if(item.children){
+      return !!item.children.find(child => menus.indexOf(child.key)!==-1)
+    }
+    return false
+  }
+
+  //根据menu数组生成标签数组  
   getMenuNodes = MenuList => {
     const path = this.props.location.pathname
     return MenuList.map(item => {
+      if(this.hasAuth(item)){
       if(!item.children){
         const icon = React.createElement(Icon[item.icon],{style:{ fontSize: '16px'}})
+        this.hasAuth(item)
         return (
           <Menu.Item key={item.key} icon={icon}>
             <Link to={item.key}>{item.title}</Link>
@@ -40,6 +63,9 @@ class LeftNav extends Component {
           </SubMenu>
         )
       }
+    }else{
+      return 
+    }
     })
   }
 

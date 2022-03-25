@@ -9,6 +9,8 @@ import {
 import { reqGetRoles,reqAddRole,reqUpdateRole } from '../../api'
 import AddForm from './add-form/AddForm'
 import SetRole from './set-form/SetRole'
+import memoryUtils from '../../utils/memoryUtils'
+import storageUtils from '../../utils/storageUtils'
 
 // 角色管理路由
 export default class Role extends Component {
@@ -108,10 +110,16 @@ export default class Role extends Component {
       const {_id,auth_name} = this.state.role
       const role = {_id,auth_name,menus}
       const result = await reqUpdateRole(role)
-      console.log('result',result)
       if(result.status===0){
         message.success('修改成功')
         this.handleSetVisible(false)
+        // 如果更新自己角色的权限，强制退出
+        if(role._id===memoryUtils.user.role_id){
+          message.info('权限更改，请重新登录')
+          memoryUtils.user = {}
+          storageUtils.removeUser()
+          this.props.history.replace('/login')
+        }
       }else{
         message.error('修改失败')
       }
