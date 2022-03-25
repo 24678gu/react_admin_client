@@ -4,6 +4,7 @@ const menuList=[
         title:'首页',
         key:'/home',
         icon:'HomeOutlined',
+        isPublic:true,//所有用户都能看见
     },
     {
         title:'商品',

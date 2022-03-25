@@ -8,7 +8,7 @@ import {
 } from 'antd'
 import {formateDate} from '../../utils/dateUtils'
 import LinkButton from '../../components/link-button/LinkButton'
-import {reqGetUsers,reqDeleteUser,reqAddNewUser} from '../../api'
+import {reqGetUsers,reqDeleteUser,reqAddOrUpdateNewUser} from '../../api'
 import UserForm from './add-update-user/UserForm'
 
 // 用户管理路由
@@ -55,12 +55,17 @@ export default class User extends Component {
         render:user=>{
           return(
           <span>
-            <LinkButton>修改</LinkButton>
+            <LinkButton onClick={()=>this.showUpdate(user)}>修改</LinkButton>
             <LinkButton onClick={()=>this.deleteUser(user)}>删除</LinkButton>
           </span>)
         }
       },
     ]
+  }
+
+  showUpdate = user => {
+    this.user = user
+    this.setState({isShow:true})
   }
 
   deleteUser = user => {
@@ -79,15 +84,21 @@ export default class User extends Component {
   }
 
   addOrUpdateUser = async () => {
-    const user = this.state.value
-    const result = await reqAddNewUser(user)
-    if(result.status===0){
-      message.success('添加成功')
-      this.setState({isShow:false})
-      this.getUsers()
-    }else{
-      message.error('添加失败')
-    }
+      const user = this.state.value
+      const _id = this.user._id
+      if(_id){
+        user._id = _id
+      }
+      const result = await reqAddOrUpdateNewUser(user)
+      if(result.status===0){
+        message.success(`${_id?'修改':'添加'}成功`)
+        this.setState({isShow:false})
+        this.getUsers()
+      }else{
+        message.error(`${_id?'修改':'添加'}失败`)
+      }
+    
+    
   }
 
   getUsers = async () => {
@@ -120,7 +131,8 @@ export default class User extends Component {
 
   render() {
     const {loading,isShow,users,roles} = this.state
-    const title = <Button type='primary' onClick={()=>this.setState({isShow:true})}>创建用户</Button>
+    const title = <Button type='primary' onClick={()=>{this.setState({isShow:true});this.user={}}}>创建用户</Button>
+    const user = this.user || {}
 
     return (
       <Card title={title}>
@@ -139,7 +151,7 @@ export default class User extends Component {
           }
         />
         <Modal 
-          title="添加用户" 
+          title={user._id ? "修改用户" : "添加用户"} 
           visible={isShow} 
           onOk={this.addOrUpdateUser} 
           onCancel={()=>this.setState({isShow:false})}
@@ -148,7 +160,7 @@ export default class User extends Component {
           cancelText='取消'
           destroyOnClose
         >
-          <UserForm roles={roles} getFormData={this.getFormData} getRoleId={this.getRoleId}/>
+          <UserForm user={user} roles={roles} getFormData={this.getFormData} getRoleId={this.getRoleId}/>
         </Modal>
       </Card>
     )

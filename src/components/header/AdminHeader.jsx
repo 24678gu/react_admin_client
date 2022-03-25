@@ -22,7 +22,7 @@ class AdminHeader extends Component {
   getWeather = async () => {
     const result = await reqWeather('北京')
     this.setState({weather:result.weather})
-  }
+  }   
 
   getTitle = (menu,path) => {
     let title
