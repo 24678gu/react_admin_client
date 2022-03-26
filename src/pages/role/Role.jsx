@@ -11,9 +11,11 @@ import AddForm from './add-form/AddForm'
 import SetRole from './set-form/SetRole'
 import memoryUtils from '../../utils/memoryUtils'
 import storageUtils from '../../utils/storageUtils'
+import { connect } from 'react-redux'
+import {setUser} from '../../redux/actions'
 
 // 角色管理路由
-export default class Role extends Component {
+class Role extends Component {
   state = {
     roles:[],//所有角色列表
     role:{},//选中的role
@@ -114,9 +116,9 @@ export default class Role extends Component {
         message.success('修改成功')
         this.handleSetVisible(false)
         // 如果更新自己角色的权限，强制退出
-        if(role._id===memoryUtils.user.role_id){
+        if(role._id===this.props.user.role_id){
           message.info('权限更改，请重新登录')
-          memoryUtils.user = {}
+          this.props.setUser({})
           storageUtils.removeUser()
           this.props.history.replace('/login')
         }
@@ -194,3 +196,10 @@ export default class Role extends Component {
     )
   }
 }
+
+export default connect(
+  state => ({user:state.user}),
+  {
+    setUser,
+  }
+)(Role)

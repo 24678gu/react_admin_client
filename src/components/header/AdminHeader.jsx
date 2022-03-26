@@ -9,6 +9,8 @@ import { Modal } from 'antd'
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import storageUtils from '../../utils/storageUtils'
 import LinkButton from '../link-button/LinkButton'
+import { connect } from 'react-redux'
+import { setUser } from '../../redux/actions'
 
 const { confirm } = Modal;
 
@@ -46,7 +48,8 @@ class AdminHeader extends Component {
       cancelText:'取消',
       onOk: () => {
         storageUtils.removeUser()
-        memoryUtils.user = {}
+        // memoryUtils.user = {}
+        this.props.setUser({})
         this.props.history.replace('/login')
       },
     });
@@ -67,8 +70,10 @@ class AdminHeader extends Component {
 
   render() {
     const {currentTime,weather} = this.state
-    const username = memoryUtils.user.username
-    const title = this.getTitle(MenuList,this.props.location.pathname)
+    // const username = memoryUtils.user.username
+    const username = this.props.user.username
+    // const title = this.getTitle(MenuList,this.props.location.pathname)
+    const title = this.props.headTitle
     return (
       <div className='header'>
         <div className='header-top'>
@@ -87,4 +92,7 @@ class AdminHeader extends Component {
   }
 }
 
-export default withRouter(AdminHeader)
+export default connect(
+  state => ({headTitle:state.headTitle,user:state.user}),
+  {setUser}
+)(withRouter(AdminHeader))

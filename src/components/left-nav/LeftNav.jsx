@@ -6,6 +6,8 @@ import * as Icon from '@ant-design/icons';
 import {Link,withRouter} from 'react-router-dom'
 import MenuList from '../../config/menuConfig'
 import memoryUtils from '../../utils/memoryUtils'
+import {connect} from 'react-redux'
+import {setHeadTitle} from '../../redux/actions'
 
 const { SubMenu } = Menu;
 
@@ -27,8 +29,11 @@ class LeftNav extends Component {
     }else if(key==='/product/productManage'){
       key='/product'
     }
-    const menus = memoryUtils.user.role.menus
-    const username = memoryUtils.user.username
+    const {user} = this.props
+    // const menus = memoryUtils.user.role.menus
+    const menus = user.role.menus
+    // const username = memoryUtils.user.username
+    const username = user.username
     if(username==='admin' || isPublic || menus.indexOf(key)!==-1){
       return true
     }else if(item.children){
@@ -43,11 +48,13 @@ class LeftNav extends Component {
     return MenuList.map(item => {
       if(this.hasAuth(item)){
       if(!item.children){
+        if(item.key===path || path.indexOf(item.key)===0){
+          this.props.setHeadTitle(item.title)
+        }
         const icon = React.createElement(Icon[item.icon],{style:{ fontSize: '16px'}})
-        this.hasAuth(item)
         return (
           <Menu.Item key={item.key} icon={icon}>
-            <Link to={item.key}>{item.title}</Link>
+            <Link to={item.key} onClick={()=>this.props.setHeadTitle(item.title)}>{item.title}</Link>
           </Menu.Item>
         )
       }else{
@@ -132,4 +139,7 @@ class LeftNav extends Component {
 //withRouter高阶组件：
 // 包装非路由组件，返回一个新组件
 //新的组件向非路由组件传递3个属性：history/location/match
-export default withRouter(LeftNav)
+export default connect(
+  state => ({headTitle:state.headTitle,user:state.user}),
+  {setHeadTitle}
+)(withRouter(LeftNav))

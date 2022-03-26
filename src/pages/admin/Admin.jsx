@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Redirect,Route,Switch } from 'react-router-dom'
-import memoryUtils from '../../utils/memoryUtils'
+// import memoryUtils from '../../utils/memoryUtils'
 import {Layout} from 'antd'
 import LeftNav from '../../components/left-nav/LeftNav'
 import AdminHeader from '../../components/header/AdminHeader'
@@ -12,12 +12,14 @@ import User from '../user/User'
 import Bar from '../charts/bar/Bar'
 import Line from '../charts/line/Line'
 import Pie from '../charts/pie/Pie'
+import { connect } from 'react-redux'
 
 const { Header, Footer, Sider, Content } = Layout
 
-export default class Admin extends Component {
+class Admin extends Component {
   render() {
-    const user = memoryUtils.user
+    // const user = memoryUtils.user
+    const user = this.props.user
     // 如果内存没有存储user ==> 当前没有登录
     if(!user || !user._id){
       // 自动跳转到登录界面
@@ -53,3 +55,8 @@ export default class Admin extends Component {
     )
   }
 }
+
+export default connect(
+  state => ({user:state.user}),
+  {}
+)(Admin)
