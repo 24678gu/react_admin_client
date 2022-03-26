@@ -2,31 +2,36 @@ import React, { Component } from 'react'
 import { Form, Input, Button, message } from 'antd';
 import {UserOutlined,LockOutlined} from '@ant-design/icons';
 import 'antd/dist/antd.css'
-import memoryUtils from '../../utils/memoryUtils'
+// import memoryUtils from '../../utils/memoryUtils'
 
 import './Login.css'
 import logo from '../../assets/images/logo.png'
-import { reqLogin } from '../../api';
-import storageUtils from '../../utils/storageUtils'
+// import { reqLogin } from '../../api';
+// import storageUtils from '../../utils/storageUtils'
 import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import {setHeadTitle,setUser,login} from '../../redux/actions'
 
-export default class Login extends Component {
+class Login extends Component {
 
   onFinish = async values => {
     const {username,password} = values
-    const data = await reqLogin(username,password)
-    const {status} = data
-    if(status === 0){
-      message.success('登录成功')
-      // 保存user
-      const user = data.data
-      memoryUtils.user = user//保存到内存
-      storageUtils.saveUser(user)//保存到local
-      //跳转到后台管理界面(不需要回退用replace,否则用push)
-      this.props.history.replace('/')
-    }else{
-      message.error(data.msg)
-    }
+    this.props.login(username,password)
+    // const data = await reqLogin(username,password)
+    // const {status} = data
+    // if(status === 0){
+    //   message.success('登录成功')
+    //   // 保存user
+    //   const user = data.data
+    //   memoryUtils.user = user//保存到内存
+    //   storageUtils.saveUser(user)//保存到local
+    //   this.props.setUser(user)
+    //   //跳转到后台管理界面(不需要回退用replace,否则用push)
+    //   this.props.setHeadTitle('首页')
+    //   this.props.history.replace('/home')
+    // }else{
+    //   message.error(data.msg)
+    // }
   };
 
   onFinishFailed = errorInfo => {
@@ -55,9 +60,14 @@ export default class Login extends Component {
 
   render() {
     // 如果用户已经登录自动跳转到管理界面
-    const user = memoryUtils.user
+    // const user = memoryUtils.user
+    const user = this.props.user
     if(user && user._id){
       return <Redirect to='/'/>
+    }
+    const errMsg = user.errMsg
+    if(errMsg){
+      message.error(errMsg)
     }
 
     return (
@@ -165,4 +175,13 @@ export default class Login extends Component {
     )
   }
 }
+
+export default connect(
+  state => ({user:state.user}),
+  {
+    setHeadTitle,
+    setUser,
+    login,
+  }
+)(Login)
 
